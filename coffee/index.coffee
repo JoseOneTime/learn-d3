@@ -1,5 +1,13 @@
-width = 960
-height = 500
+margin =
+	top: 20
+	right: 30
+	bottom: 30
+	left: 40
+
+outerWidth = 960
+outerHeight = 500
+width = outerWidth - margin.left - margin.right
+height = outerHeight - margin.top - margin.bottom
 
 x = d3.scale.ordinal()
 	.rangeRoundBands [0, width], 0.1
@@ -7,31 +15,43 @@ x = d3.scale.ordinal()
 y = d3.scale.linear()
 	.range [height, 0]
 
+xAxis = d3.svg.axis()
+	.scale x
+	.orient 'bottom'
+
+yAxis = d3.svg.axis()
+	.scale y
+	.orient 'left'
+
 chart = d3.select '.chart'
-	.attr 'width', width
-	.attr 'height', height
+	.attr 'width', outerWidth
+	.attr 'height', outerHeight
+	.append 'g'
+	.attr 'transform', "translate(#{margin.left}, #{margin.top})"
 
 type = (d) ->
-	d.value = parseInt(d.value, 10)
+	d.value = parseInt d.value, 10
 	d
 
 d3.tsv 'data.tsv', type, (err, data) ->
 	x.domain data.map (d) -> d.name
 	y.domain [0, d3.max(data, (d) -> d.value)]
 
-	bar = chart.selectAll 'g'
+	chart.append 'g'
+		.attr 'class', 'x axis'
+		.attr 'transform', "translate(0, #{height})"
+		.call xAxis
+
+	chart.append 'g'
+		.attr 'class', 'y axis'
+		.call yAxis
+
+	chart.selectAll '.bar'
 		.data data
 		.enter()
-		.append 'g'
-		.attr 'transform', (d, i) -> "translate(#{x d.name}, 0)"
-
-	bar.append 'rect'
-		.attr 'y', (d) -> y(d.value)
-		.attr 'height', (d) -> height - y(d.value)
+		.append 'rect'
+		.attr 'class', 'bar'
+		.attr 'x', (d) -> x d.name
+		.attr 'y', (d) -> y d.value
+		.attr 'height', (d) -> height - y d.value
 		.attr 'width', x.rangeBand()
-
-	bar.append 'text'
-		.attr 'x', x.rangeBand() / 2
-		.attr 'y', (d) -> y(d.value) + 3
-		.attr 'dy', '.75em'
-		.text (d) -> d.value
