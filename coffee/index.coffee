@@ -22,6 +22,7 @@ xAxis = d3.svg.axis()
 yAxis = d3.svg.axis()
 	.scale y
 	.orient 'left'
+	.ticks 10, '%'
 
 chart = d3.select '.chart'
 	.attr 'width', outerWidth
@@ -45,6 +46,12 @@ d3.tsv 'data.tsv', type, (err, data) ->
 	chart.append 'g'
 		.attr 'class', 'y axis'
 		.call yAxis
+		.append 'text'
+		.attr 'transform', 'rotate(-90)'
+		.attr 'y', 6
+		.attr 'dy', '.71em'
+		.style 'text-anchor', 'end'
+		.text 'Frequency'
 
 	chart.selectAll '.bar'
 		.data data
