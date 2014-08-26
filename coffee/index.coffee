@@ -31,7 +31,7 @@ chart = d3.select '.chart'
 	.attr 'transform', "translate(#{margin.left}, #{margin.top})"
 
 type = (d) ->
-	d.value = parseInt d.value, 10
+	d.value = parseFloat d.value, 10
 	d
 
 d3.tsv 'data.tsv', type, (err, data) ->
